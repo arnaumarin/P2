@@ -1,5 +1,9 @@
+<<<<<<< HEAD
 Esto ha de quedar *bonito*
 **Doble asterisco (??????)**
+=======
+
+>>>>>>> 1ece0ed7b609caaafd9126502651856b2eaeedbe
 PAV - P2: detección de actividad vocal (VAD)
 ============================================
 
@@ -106,6 +110,8 @@ Ejercicios
 - Etiquete manualmente los segmentos de voz y silencio del fichero grabado al efecto. Inserte, a 
   continuación, una captura de `wavesurfer` en la que se vea con claridad la señal temporal, el contorno de
   potencia y la tasa de cruces por cero, junto con el etiquetado manual de los segmentos.
+
+  Esto ha de quedar *bonito*. El profa está insistiendo en que debe quedar bonito, vete tu a saber cómo quedará dado que a mi, personalmente, la estética me importa menos que una mierda. Lo siento ALbino. PD. ¿Contra quién juega el Madrid en Copa? 
 
 
 - A la vista de la gráfica, indique qué valores considera adecuados para las magnitudes siguientes:
