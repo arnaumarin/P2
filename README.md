@@ -1,4 +1,9 @@
+<<<<<<< HEAD
+Esto ha de quedar *bonito*
+**Doble asterisco (??????)**
+=======
 
+>>>>>>> 1ece0ed7b609caaafd9126502651856b2eaeedbe
 PAV - P2: detección de actividad vocal (VAD)
 ============================================
 
