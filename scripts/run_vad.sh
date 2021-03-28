@@ -8,7 +8,6 @@ DB=$HOME/PAV/P2/db.v4
 CMD=bin/vad
 
 for filewav in $DB/*/*wav; do
-#    echo
     echo "**************** $filewav ****************"
     if [[ ! -f $filewav ]]; then 
 	    echo "Wav file not found: $filewav" >&2
@@ -17,7 +16,7 @@ for filewav in $DB/*/*wav; do
 
     filevad=${filewav/.wav/.vad}
 
-    $CMD -i $filewav -o $filevad || exit 1
+    ($CMD -i $filewav -o $filevad)|| exit 1
 
 # Alternatively, uncomment to create output wave files
 #    filewavOut=${filewav/.wav/.vad.wav}

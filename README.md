@@ -1,9 +1,5 @@
 <<<<<<< HEAD
-Esto ha de quedar *bonito*
-**Doble asterisco (??????)**
-=======
 
->>>>>>> 1ece0ed7b609caaafd9126502651856b2eaeedbe
 PAV - P2: detección de actividad vocal (VAD)
 ============================================
 
@@ -111,18 +107,32 @@ Ejercicios
   continuación, una captura de `wavesurfer` en la que se vea con claridad la señal temporal, el contorno de
   potencia y la tasa de cruces por cero, junto con el etiquetado manual de los segmentos.
 
-  Esto ha de quedar *bonito*. El profa está insistiendo en que debe quedar bonito, vete tu a saber cómo quedará dado que a mi, personalmente, la estética me importa menos que una mierda. Lo siento ALbino. PD. ¿Contra quién juega el Madrid en Copa? 
+	Esto ha de quedar *bonito*. El profa está insistiendo en que debe quedar bonito, vete tu a saber cómo quedará dado que a mi, personalmente, la estética me importa menos que una mierda. Lo siento ALbino. PD. ¿Contra quién juega el Madrid en Copa? 
+  
+	Si etiquetamos las partes de nuestra señal con etiquetas de silencios (S) y voz (V), nos queda lo siguiente:  
+  
 
 
+	<img src="img/label1.png" align="center">
+      
+	Tras calcular la tasa de cruces por cero y la potencia (usando la implementación de ventana rectangular), finalmente, nos queda:
+
+	<img src="img/label2.png" align="center">
+
+	##### ***Primera gráfica:*** *Contorno de la potencia;* ***Segunda gráfica:*** *ZCR*
 - A la vista de la gráfica, indique qué valores considera adecuados para las magnitudes siguientes:
 
-	* Incremento del nivel potencia en dB, respecto al nivel correspondiente al silencio inicial, para
-	  estar seguros de que un segmento de señal se corresponde con voz.
-
+	* Incremento del nivel potencia en dB, respecto al nivel correspondiente al silencio inicial, para estar seguros de que un segmento de señal se corresponde con voz.
+	
+	Durante el silencio inicial tenemos unos *-100...-80 dB*, que pasan a -20 dB una vez empieza un tramo de voz, con lo que **un incremento de 20-40dB** podría ser razonable.
+	
 	* Duración mínima razonable de los segmentos de voz y silencio.
+
+	Los segmentos de voz, obviando las palabras cortas que solemos pronunciar juntas, suelen durar **ligeramente más de 0.5s.**
 
 	* ¿Es capaz de sacar alguna conclusión a partir de la evolución de la tasa de cruces por cero?
 
+	La tasa de cruces por cero aumenta en tramos de voz. Por un lado, aumenta ligeramente cuando se están pronunciando sonidos sonoros. Por otro lado, cuando pronunciamos sonidos sordos, en algunos se dispara. Esto nos puede ser útil de cara a detectar si es un tramo de voz o silencio, ya que en los tramos sordos la potencia es muy parecida a la de los tramos de silencio, sin embargo, el zcr aumenta bastante.
 
 ### Desarrollo del detector de actividad vocal
 
@@ -132,8 +142,16 @@ Ejercicios
 - Inserte una gráfica en la que se vea con claridad la señal temporal, el etiquetado manual y la detección
   automática conseguida para el fichero grabado al efecto. 
 
+	En un estado temprano del detector de actividad vocal, se obtiene lo siguiente:
+
+	<img src="img/labelvad1.png" align="center">
+
+	##### *En la parte inferior se puede ver el etiquetado generado por el vad (.vad), justo debajo del que hemos hecho "a mano" (.lab)*
 
 - Explique, si existen. las discrepancias entre el etiquetado manual y la detección automática.
+
+	Tal como se puede ver, los resultados no se asemejan demasiado. En el momento de la captura nuestro vad funcionaba considerando voz si la potencia superaba un threshold concreto (0.9) y silencio en el caso contrario. Al no haber implementado aún el cálculo de la potencia que hicimos en la práctica anterior, la obtención de la potencia se hacía con números aleatorios, lo cual hace que los resultados no tengan mucho a ver con la realidad.
+
 
 - Evalúe los resultados sobre la base de datos `db.v4` con el script `vad_evaluation.pl` e inserte a 
   continuación las tasas de sensibilidad (*recall*) y precisión para el conjunto de la base de datos (sólo
@@ -147,6 +165,14 @@ Ejercicios
 - Si ha desarrollado el algoritmo para la cancelación de los segmentos de silencio, inserte una gráfica en
   la que se vea con claridad la señal antes y después de la cancelación (puede que `wavesurfer` no sea la
   mejor opción para esto, ya que no es capaz de visualizar varias señales al mismo tiempo).
+
+  Los resultados obtenidos al hacer que nuestro programa cancele los silencios son los siguientes:
+
+	<img src="img/pygraph1.png" align="center">
+	
+	##### *Gráfica realizada con nuestro script plot_in_vs_out.py*
+
+	Esta representación nos ayuda a ver con claridad alguno de los fallos que comete nuestro programa: algunos segmentos sordos los identifica como silencio y cuando el ruido de fondo tiene un pequeño aumento de potencia, si pasa del threshold se considera voz.
 
 #### Gestión de las opciones del programa usando `docopt_c`
 
