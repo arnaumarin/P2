@@ -57,7 +57,7 @@ VAD_DATA *vad_open(float rate, float alpha0, float alpha1, float alpha2)
   vad_data->state = ST_INIT;
   vad_data->sampling_rate = rate;
   vad_data->alpha0 = alpha0;
-  vad_data->alpha1 = alpha1 / 1000; /*Convert to s*/
+  vad_data->alpha1 = alpha1 / 1000; /*Convert to s*/ //obsolete (default value = 0)
   vad_data->alpha2 = alpha2;
   vad_data->frame_length = rate * FRAME_TIME * 1e-3;
   return vad_data;
@@ -120,7 +120,7 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x, float *t)
   case ST_MAYBE_SILENCE:
     if ((f.p < vad_data->k0 )&& (vad_data->alpha1 < time_elapsed))
       {
-        *t = 0;
+        *t = 0;   //restart time elapsed
         vad_data->state = ST_SILENCE;
       }
     else
@@ -131,7 +131,7 @@ VAD_STATE vad(VAD_DATA *vad_data, float *x, float *t)
   case ST_MAYBE_VOICE:
     if ((f.p > vad_data->k0 ) && (vad_data->alpha1 < time_elapsed))
     {
-      *t = 0;
+      *t = 0;   //restart time elapsed
       vad_data->state = ST_VOICE;
     }
     else

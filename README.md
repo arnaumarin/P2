@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 
 PAV - P2: detección de actividad vocal (VAD)
 ============================================
@@ -113,11 +112,11 @@ Ejercicios
   
 
 
-	<img src="img/label1.png" align="center">
+	<img src="img/label1.png" width="620" align="center">
       
 	Tras calcular la tasa de cruces por cero y la potencia (usando la implementación de ventana rectangular), finalmente, nos queda:
 
-	<img src="img/label2.png" align="center">
+	<img src="img/label2.png" width="620" align="center">
 
 	##### ***Primera gráfica:*** *Contorno de la potencia;* ***Segunda gráfica:*** *ZCR*
 - A la vista de la gráfica, indique qué valores considera adecuados para las magnitudes siguientes:
@@ -144,7 +143,7 @@ Ejercicios
 
 	En un estado temprano del detector de actividad vocal, se obtiene lo siguiente:
 
-	<img src="img/labelvad1.png" align="center">
+	<img src="img/labelvad1.png" width="620" align="center">
 
 	##### *En la parte inferior se puede ver el etiquetado generado por el vad (.vad), justo debajo del que hemos hecho "a mano" (.lab)*
 
@@ -168,9 +167,9 @@ Ejercicios
 
   Los resultados obtenidos al hacer que nuestro programa cancele los silencios son los siguientes:
 
-	<img src="img/pygraph1.png" align="center">
+	<img src="img/pygraph1.png" width="620" align="center">
 	
-	##### *Gráfica realizada con nuestro script plot_in_vs_out.py*
+	##### *Gráfica realizada con nuestro script `plot_in_vs_out.py`*
 
 	Esta representación nos ayuda a ver con claridad alguno de los fallos que comete nuestro programa: algunos segmentos sordos los identifica como silencio y cuando el ruido de fondo tiene un pequeño aumento de potencia, si pasa del threshold se considera voz.
 
@@ -184,6 +183,40 @@ Ejercicios
 
 - Indique a continuación si ha realizado algún tipo de aportación suplementaria (algoritmos de detección o 
   parámetros alternativos, etc.).
+
+- ### Optimización de los parámetros y scripts usados para ello
+
+	* Una de las tareas a realizar ha sido encontrar los parámetros que optimizaban nuestro programa (principalmenete k0). Para ello, hemos hecho un script de shell que calculara la puntuación total que se obtenía en run_vad.sh, solo que además, iterara sobre esta variando el parámetro de interés cada vez. El código completo de este se puede encontrar en `opt_vad.sh`. Este script permite iterar con variables que poseen un offset y permite saltos que no sean enteros (div controla cómo varía el índice. En este ejemplo va de 0.5 en 0.5, ya que `div=2`). Las variables clave son las siguientes:
+	
+	```bash
+	lower_index_bound=0                     #lower bound of the for loop
+	upper_index_bound=30                    #upper bound of the for loop
+	offset=4                                #offset of the variable we want to iterate
+	div=2                                   #controls the step size of the variable when we iterate it (=2 -> /2)
+	```
+	
+	* Para facilitar la visualización de los resultados al iterar, hemos creado un script alternativo a `vad_evaluation.pl`  (`vad_evaluation_printless.pl`). Este es el mismo script pero con solo el print que nos indica el % TOTAL y imprime esta variable en un fichero `out_alpha.txt` (también usado en opt_vad.sh). Las líneas de código más significativas que hemos añadido en este fichero auxiliar son las siguientes:
+
+	```perl
+	open(FH, '>>', $outfile);											#open the file (append)
+    printf "===> %s: %.3f%%\n", $filename, ($F_V * $F_S) ** (1. / 2.);	#display result on screen
+	printf FH "%.3f\n", ($F_V * $F_S) ** (1. / 2.);						#print total value into the file
+	close(FH);
+	```
+	
+	A continuación, podemos ver la evolución de k0 según se va iterando:
+	
+	<img src="img/pygraph2.png" width="420" align="center">	
+
+	##### *`lower_index_bound = 0, upper_index_bound = 100, offset = 0, div = 1`*
+
+	Hecho este primer barrido, hemos visto que el valor óptimo para `k0` se encontraba aproximadamente en valores inferiores a 10, así que hemos hecho un segundo barrido con saltos más pequeños (`div=10` -> saltos de 0.1):
+
+	<img src="img/pygraph3.png" width="420" align="center">	
+
+	##### *`lower_index_bound = 0, upper_index_bound = 100, offset = 0, div = 10`*
+
+	A partir de estos resultados, hemos decidido escoger el valor `k0 = 6.5`
 
 - Si lo desea, puede realizar también algún comentario acerca de la realización de la práctica que
   considere de interés de cara a su evaluación.

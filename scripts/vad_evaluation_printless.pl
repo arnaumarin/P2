@@ -90,7 +90,7 @@ sub print_statistics {
 	my $VS = 0;
 	my $SV = 0;
 	my $eps = 1.e-24;
-	my $outfile = "out_alpha.txt";
+	my $outfile = "out_alpha.txt";	#out file where totals will be printed to 
 
     my $stat = shift;
 	my $filename = shift;
@@ -121,9 +121,9 @@ sub print_statistics {
 	
 	$beta = 1. / 2.;
 	my $F_S = (1. + $beta ** 2) * $recaS * $precS / ($eps + $recaS + $beta ** 2 * $precS);
-	open(FH, '>>', $outfile);
-    printf "===> %s: %.3f%%\n", $filename, ($F_V * $F_S) ** (1. / 2.);
-	printf FH "%.3f\n", ($F_V * $F_S) ** (1. / 2.);
+	open(FH, '>>', $outfile);											#open the file (append)
+    printf "===> %s: %.3f%%\n", $filename, ($F_V * $F_S) ** (1. / 2.);	#display result on screen
+	printf FH "%.3f\n", ($F_V * $F_S) ** (1. / 2.);						#print total value into the file
 	close(FH);
 }
 

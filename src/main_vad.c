@@ -20,10 +20,12 @@ int main(int argc, char *argv[])
   VAD_DATA *vad_data;
   VAD_STATE state, last_state;
   float *buffer, *buffer_zeros;
-  int frame_size;                                               /* in samples */
-  float frame_duration, time_elapsed = 0;                       /* in seconds */
+  int frame_size;                         /* in samples */
+  float frame_duration, time_elapsed = 0; /* in seconds */
+
+  /*last_undef_t1 & t2 are the bounds of every "MAYBE..." state in frames */
   unsigned int t, last_t, last_undef_t1 = 0, last_undef_t2 = 0; /* in frames */
-  signed int found_first_undef = 0;
+  unsigned found_first_undef = 1;                               /* flag to check if the first frame of an undefined state has been found */
   char *input_wav, *output_vad, *output_wav;
 
   DocoptArgs args = docopt(argc, argv, /* help */ 1, /* version */ "2.0");
@@ -98,54 +100,47 @@ int main(int argc, char *argv[])
     time_elapsed = (t - last_t) * frame_duration;
     state = vad(vad_data, buffer, &time_elapsed);
 
+    //if the state has changed and its an "UNDEF" state (MAYBE SILENCE/VOICE), it sets the upper frame bound last_undef_t2
     if (state != last_state && (state == ST_MAYBE_SILENCE || state == ST_MAYBE_VOICE))
     {
-      if (found_first_undef == 0)
+      if (found_first_undef == 0) //check if its the first "U" in a chain of "U" states (keep the first one)
       {
         found_first_undef = 1;
         last_undef_t2 = t;
       }
     }
-    else
+    else //reset flag
       found_first_undef = 0;
 
     if (verbose & DEBUG_VAD)
     {
-      printf("time elapsed = %f t = %d last_t = %d last_t_undef = %d\t", time_elapsed, t, last_t, last_undef_t2);
+      printf("time elapsed = %f t = %d last_t = %d last_undef_t2 = %d last_undef_t1 = %d\t", time_elapsed, t, last_t, last_undef_t2, last_undef_t1);
       vad_show_state(vad_data, stdout);
     }
 
     /* TODO: print only SILENCE and VOICE labels */
     /* As it is, it prints UNDEF segments but is should be merge to the proper value */
-    if ((state != last_state && time_elapsed == 0) || state == ST_INIT)
+    if ((state != last_state && time_elapsed == 0))
     {
       //printf("entra if\n last undef t %d\n", last_undef_t2);
       if (t != last_t)
       {
         if (state != ST_INIT)
         {
-          // printf("entra segundo  if\n last undef t %d\n", last_undef_t2);
           fprintf(vadfile, "%.5f\t%.5f\t%s\n", last_undef_t1 * frame_duration, last_undef_t2 * frame_duration, state2str(last_state));
 
           if (found_first_undef == -1)
             found_first_undef = 0;
           if (sndfile_out != 0 && state == ST_VOICE)
           {
-            //printf("\n--------pos ini %d", sf_seek(sndfile_out, 0, SEEK_CUR));
+            //set out file pointer (last_undef_t2 - last_undef_t1)*frame_size times back
             for (j = 0; j < (last_undef_t2 - last_undef_t1); j++)
               sf_seek(sndfile_out, -frame_size, SEEK_CUR);
-            //printf("\n--------pos %d", sf_seek(sndfile_out, -frame_size, SEEK_CUR));
+            //print silences
             for (j = 0; j < (last_undef_t2 - last_undef_t1); j++)
-            {
-              //printf("\n <<<<pos j=%d %d", j, sf_seek(sndfile_out, 0, SEEK_CUR));
               sf_write_float(sndfile_out, buffer_zeros, frame_size);
-            }
           }
           last_undef_t1 = last_undef_t2;
-          //printf("\tskjd last state %d curr state %d \n", last_state, state);
-
-          //printf("\n pos after %d", sf_seek(sndfile_out, 0, SEEK_CUR));
-          // printf("\n\nti\n");
         }
       }
       last_state = state;
@@ -158,11 +153,10 @@ int main(int argc, char *argv[])
   /* TODO: what do you want to print, for last frames? */
   if (state == ST_MAYBE_VOICE || state == ST_MAYBE_SILENCE)
     state = last_state;
-  if (sndfile_out != 0 && state == ST_SILENCE)
+  if (sndfile_out != 0 && state == ST_SILENCE)  //print silences
   {
     for (j = 0; j < (t - last_undef_t1); j++)
       sf_seek(sndfile_out, -frame_size, SEEK_CUR);
-    // printf("\n--------pos %d", sf_seek(sndfile_out, -frame_size, SEEK_CUR));
     for (j = 0; j < (t - last_undef_t1); j++)
       sf_write_float(sndfile_out, buffer_zeros, frame_size);
   }
