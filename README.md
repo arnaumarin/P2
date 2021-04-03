@@ -147,15 +147,33 @@ Ejercicios
 
 	##### *En la parte inferior se puede ver el etiquetado generado por el vad (.vad), justo debajo del que hemos hecho "a mano" (.lab)*
 
+	Después de haber mejorado el criterio de detección, obtenemos:
+
+	<img src="img/labelvad2.png" width="620" align="center">
+
+	##### *Vemos como detectamos toda la señal como voz al haber una variación repentina de potencia al principio*
+
+	Esto nos ha hecho ver uno de los fallos de nuestra implementación: deberíamos haber tenido en cuenta posiblemente un promedio de más ventanas, ya que el nivel de potencia puede dar variaciones en casos inesperados cuando se empieza un audio.
+
+	Aún así, en los casos donde no se produce esto tenemos bastantes mejores resultados que el caso aleatorio:
+
+	<img src="img/labelvad3.png" width="620" align="center">
+
+	##### *Resultados obtenidos usando pav_4361 (2018-2019q1)*
+
 - Explique, si existen. las discrepancias entre el etiquetado manual y la detección automática.
 
 	Tal como se puede ver, los resultados no se asemejan demasiado. En el momento de la captura nuestro vad funcionaba considerando voz si la potencia superaba un threshold concreto (0.9) y silencio en el caso contrario. Al no haber implementado aún el cálculo de la potencia que hicimos en la práctica anterior, la obtención de la potencia se hacía con números aleatorios, lo cual hace que los resultados no tengan mucho a ver con la realidad.
+	Al implementarlo con resultados de la potencia no aleatorios, hemos conseguido una mejora bastante grande, pero sigue teniendo algunos problemas. Se pueden dar transiciones repentinas, las cuales no tienen mucho sentido ya que los tramos de voz y silencio suelen tener una duración relativamente alta, y además, nuestra evaluación depende demasiado del nivel de potencia, el cual nos puede causar equivocaciones en casos concretos.
 
 
 - Evalúe los resultados sobre la base de datos `db.v4` con el script `vad_evaluation.pl` e inserte a 
   continuación las tasas de sensibilidad (*recall*) y precisión para el conjunto de la base de datos (sólo
   el resumen).
 
+	Las tasas finales obtenidas han sido:
+
+	<img src="img/summary1.png" width="620" align="center">	
 
 ### Trabajos de ampliación
 
@@ -178,6 +196,9 @@ Ejercicios
 - Si ha usado `docopt_c` para realizar la gestión de las opciones y argumentos del programa `vad`, inserte
   una captura de pantalla en la que se vea el mensaje de ayuda del programa.
 
+	Nuestro programa tiene los argumentos siguientes:
+
+	<img src="img/docopt1.png" width="420" align="center">
 
 ### Contribuciones adicionales y/o comentarios acerca de la práctica
 
@@ -186,7 +207,7 @@ Ejercicios
 
 - ### Optimización de los parámetros y scripts usados para ello
 
-	* Una de las tareas a realizar ha sido encontrar los parámetros que optimizaban nuestro programa (principalmenete k0). Para ello, hemos hecho un script de shell que calculara la puntuación total que se obtenía en run_vad.sh, solo que además, iterara sobre esta variando el parámetro de interés cada vez. El código completo de este se puede encontrar en `opt_vad.sh`. Este script permite iterar con variables que poseen un offset y permite saltos que no sean enteros (div controla cómo varía el índice. En este ejemplo va de 0.5 en 0.5, ya que `div=2`). Las variables clave son las siguientes:
+	* Una de las tareas a realizar ha sido encontrar los parámetros que optimizaban nuestro programa (principalmenete `k0`). Para ello, hemos hecho un script de shell que calculara la puntuación total que se obtenía en `run_vad.sh`, solo que además, iterara sobre esta variando el parámetro de interés cada vez. El código completo de este se puede encontrar en `opt_vad.sh`. Este script permite iterar con variables que poseen un offset y permite saltos que no sean enteros (`div` controla cómo varía el índice. En este ejemplo va de 0.5 en 0.5, ya que `div=2`). Las variables clave son las siguientes:
 	
 	```bash
 	lower_index_bound=0                     #lower bound of the for loop
@@ -195,12 +216,12 @@ Ejercicios
 	div=2                                   #controls the step size of the variable when we iterate it (=2 -> /2)
 	```
 	
-	* Para facilitar la visualización de los resultados al iterar, hemos creado un script alternativo a `vad_evaluation.pl`  (`vad_evaluation_printless.pl`). Este es el mismo script pero con solo el print que nos indica el % TOTAL y imprime esta variable en un fichero `out_alpha.txt` (también usado en opt_vad.sh). Las líneas de código más significativas que hemos añadido en este fichero auxiliar son las siguientes:
+	* Para facilitar la visualización de los resultados al iterar, hemos creado un script alternativo a `vad_evaluation.pl`  (`vad_evaluation_printless.pl`). Este es el mismo script pero con solo el print que nos indica el % TOTAL y imprime esta variable en un fichero `out_alpha.txt` (también usado en `opt_vad.sh`). Las líneas de código más significativas que hemos añadido en este fichero auxiliar son las siguientes:
 
 	```perl
-	open(FH, '>>', $outfile);											#open the file (append)
+	open(FH, '>>', $outfile);	#open the file (append)
     printf "===> %s: %.3f%%\n", $filename, ($F_V * $F_S) ** (1. / 2.);	#display result on screen
-	printf FH "%.3f\n", ($F_V * $F_S) ** (1. / 2.);						#print total value into the file
+	printf FH "%.3f\n", ($F_V * $F_S) ** (1. / 2.);	#print total value into the file
 	close(FH);
 	```
 	
@@ -220,6 +241,8 @@ Ejercicios
 
 - Si lo desea, puede realizar también algún comentario acerca de la realización de la práctica que
   considere de interés de cara a su evaluación.
+
+  Se ha intentado implementar el hecho de considerar un cambio de segmento si pasaba un tiempo especificado (`alpha1`). Aún así, no hemos logrado mejorar la detección con este, así que lo hemos puesto por defecto a 0 y lo hemos mantenido en el programa por si se quisiesen hacer pruebas con éste o mejorar la implementación para ver si se pueden mejorar los resultados. También se ha incluido un parámetro análogo a `alpha0` pero para el zcr (`alpha2`). Es una implementación bastante parecida a la que hemos hecho para la potencia.
 
 
 ### Antes de entregar la práctica
