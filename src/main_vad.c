@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
   SNDFILE *sndfile_in, *sndfile_out = 0;
   SF_INFO sf_info;
   FILE *vadfile;
-  int n_read = 0, i, j;
+  int n_read = 0, i, j, initframes = 5;
 
   VAD_DATA *vad_data;
   VAD_STATE state, last_state;
@@ -32,6 +32,7 @@ int main(int argc, char *argv[])
   float alpha0 = atof(args.alpha0);
   float alpha1 = atof(args.alpha1);
   float alpha2 = atof(args.alpha2);
+  float time = atof(args.time);
   verbose = args.verbose ? DEBUG_VAD : 0;
   input_wav = args.input_wav;
   output_vad = args.output_vad;
@@ -73,7 +74,7 @@ int main(int argc, char *argv[])
     }
   }
 
-  vad_data = vad_open(sf_info.samplerate, alpha0, alpha1, alpha2);
+  vad_data = vad_open(sf_info.samplerate, alpha0, alpha1, alpha2, time);
   /* Allocate memory for buffers */
   frame_size = vad_frame_size(vad_data);
   buffer = (float *)malloc(frame_size * sizeof(float));

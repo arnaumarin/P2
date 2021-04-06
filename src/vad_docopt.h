@@ -22,6 +22,7 @@ typedef struct {
     char *input_wav;
     char *output_vad;
     char *output_wav;
+    char *time;
     /* special */
     const char *usage_pattern;
     const char *help_message;
@@ -42,6 +43,7 @@ const char help_message[] =
 "   -0 FLOAT, --alpha0=FLOAT    k0's margin in dB [default: 6.5]\n"
 "   -1 FLOAT, --alpha1=FLOAT    k1's margin in ms [default: 0]\n"
 "   -2 FLOAT, --alpha2=FLOAT    k2's margin in dB [default: 50]\n"
+"   -t FLOAT, --time=FLOAT      frame size in ms [default: 48]\n"
 "   -v, --verbose  Show debug information\n"
 "   -h, --help     Show this screen\n"
 "   --version      Show the version of the project\n"
@@ -294,6 +296,9 @@ int elems_to_args(Elements *elements, DocoptArgs *args, bool help,
         } else if (!strcmp(option->olong, "--output-wav")) {
             if (option->argument)
                 args->output_wav = option->argument;
+        } else if (!strcmp(option->olong, "--time")) {
+            if (option->argument)
+                args->time = option->argument;
         }
     }
     /* commands */
@@ -315,6 +320,7 @@ int elems_to_args(Elements *elements, DocoptArgs *args, bool help,
 DocoptArgs docopt(int argc, char *argv[], bool help, const char *version) {
     DocoptArgs args = {
         0, 0, 0, (char*) "6.5", (char*) "0", (char*) "50", NULL, NULL, NULL,
+        (char*) "48",
         usage_pattern, help_message
     };
     Tokens ts;
@@ -331,9 +337,10 @@ DocoptArgs docopt(int argc, char *argv[], bool help, const char *version) {
         {"-2", "--alpha2", 1, 0, NULL},
         {"-i", "--input-wav", 1, 0, NULL},
         {"-o", "--output-vad", 1, 0, NULL},
-        {"-w", "--output-wav", 1, 0, NULL}
+        {"-w", "--output-wav", 1, 0, NULL},
+        {"-t", "--time", 1, 0, NULL}
     };
-    Elements elements = {0, 0, 9, commands, arguments, options};
+    Elements elements = {0, 0, 10, commands, arguments, options};
 
     ts = tokens_new(argc, argv);
     if (parse_args(&ts, &elements))

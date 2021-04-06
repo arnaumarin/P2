@@ -164,7 +164,7 @@ Ejercicios
 - Explique, si existen. las discrepancias entre el etiquetado manual y la detección automática.
 
 	Tal como se puede ver, los resultados no se asemejan demasiado. En el momento de la captura nuestro vad funcionaba considerando voz si la potencia superaba un threshold concreto (0.9) y silencio en el caso contrario. Al no haber implementado aún el cálculo de la potencia que hicimos en la práctica anterior, la obtención de la potencia se hacía con números aleatorios, lo cual hace que los resultados no tengan mucho a ver con la realidad.
-	Al implementarlo con resultados de la potencia no aleatorios, hemos conseguido una mejora bastante grande, pero sigue teniendo algunos problemas. Se pueden dar transiciones repentinas, las cuales no tienen mucho sentido ya que los tramos de voz y silencio suelen tener una duración relativamente alta, y además, nuestra evaluación depende demasiado del nivel de potencia, el cual nos puede causar equivocaciones en casos concretos.
+	Al implementarlo con resultados de la potencia no aleatorios, hemos conseguido una mejora bastante grande, pero sigue teniendo algunos problemas. Se pueden dar transiciones repentinas, las cuales no tienen mucho sentido ya que los tramos de voz y silencio suelen tener una duración relativamente alta, y además, nuestra evaluación depende demasiado del nivel de potencia, el cual nos puede causar equivocaciones vad_data->frame_length = rate * FRAME_TIME * 1e-3; en casos concretos.
 
 
 - Evalúe los resultados sobre la base de datos `db.v4` con el script `vad_evaluation.pl` e inserte a 
@@ -239,6 +239,16 @@ Ejercicios
 
 	A partir de estos resultados, hemos decidido escoger el valor `k0 = 6.5`
 
+	De manera análoga, hemos optimizado el tiempo de duración de frame, aunque este no se ha acabado de estabilizar en un punto concreto:
+
+	<img src="img/pygraph4.png" width="420" align="center">
+
+	##### *`lower_index_bound = 0, upper_index_bound = 100, offset = 0, div = 1`*
+
+	<img src="img/pygraph5.png" width="420" align="center">
+
+	##### *`lower_index_bound = 0, upper_index_bound = 100, offset = 40, div = 5`*
+	
 - Si lo desea, puede realizar también algún comentario acerca de la realización de la práctica que
   considere de interés de cara a su evaluación.
 

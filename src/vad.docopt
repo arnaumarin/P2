@@ -12,6 +12,7 @@ Options:
    -0 FLOAT, --alpha0=FLOAT    k0's margin in dB [default: 6.5]
    -1 FLOAT, --alpha1=FLOAT    k1's margin in ms [default: 0]
    -2 FLOAT, --alpha2=FLOAT    k2's margin in dB [default: 50]
+   -t FLOAT, --time=FLOAT      frame size in ms [default: 48]
    -v, --verbose  Show debug information
    -h, --help     Show this screen
    --version      Show the version of the project
